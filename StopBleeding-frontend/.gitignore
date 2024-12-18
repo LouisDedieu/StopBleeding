@@ -34,3 +34,33 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+#IDE
+# IDEs
+# WebStorm
+.idea/
+*.iml
+
+# VSCode
+.vscode/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Eclipse
+.project
+.classpath
+.cproject
+.settings/
+
+# IntelliJ
+*.iws
+*.ipr
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
