@@ -7,6 +7,7 @@ import Icon from "react-native-remix-icon";
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+// @ts-ignore
 import Logo from '@/assets/images/LogoStopBleeding.png';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -30,16 +31,22 @@ export default function TabLayout() {
                 headerShadowVisible: false,
                 headerTitle: '',
                 tabBarShowLabel: false,
+                headerStyle: {
+                    backgroundColor: Colors[colorScheme ?? 'light'].background,
+                },
+                tabBarStyle: {
+                    flex: 0.08
+                },
             }}
             >
             <Tabs.Screen
                 name="index"
                 options={{
-                    tabBarIcon: ({color}) => <Icon name={"home-3-fill"} size={35} color={color} style={{marginTop: 8}}/>,
+                    tabBarIcon: ({color}) => <Icon name={"home-3-fill"} size={35} color={color} style={{marginTop: '80%'}}/>,
                     headerLeft: () => (
                         <Image
                             source={Logo}
-                            style={{ marginLeft: 5, marginTop: 5, height: 60, width: 60}}
+                            style={{ marginLeft: 5, marginVertical: 5, height: 60, width: 60}}
                         />
                     )
                 }}
@@ -47,11 +54,11 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="two"
                 options={{
-                    tabBarIcon: ({color}) => <Icon name={"dossier-line"} size={35} color={color} style={{marginTop: 8}}/>,
+                    tabBarIcon: ({color}) => <Icon name={"dossier-line"} size={35} color={color} style={{marginTop: '80%'}}/>,
                     headerLeft: () => (
                         <Image
                             source={Logo}
-                            style={{ marginLeft: 5, marginTop: 5, height: 60, width: 60}}
+                            style={{ marginLeft: 5, marginVertical: 5, height: 60, width: 60}}
                         />
                     )
                 }}
@@ -59,11 +66,11 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="qrcode"
                 options={{
-                    tabBarIcon: ({ color }) => <Icon name={"qr-code-line"} size={35} color={color} style={{marginTop: 8}}/>,
+                    tabBarIcon: ({ color }) => <Icon name={"qr-code-line"} size={35} color={color} style={{marginTop: '80%'}}/>,
                     headerLeft: () => (
                         <Image
                             source={Logo}
-                            style={{ marginLeft: 5, marginTop: 5, height: 60, width: 60}}
+                            style={{ marginLeft: 5, marginVertical: 5, height: 60, width: 60}}
                         />
                     )
                 }}
@@ -71,7 +78,7 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="settings"
                 options={{
-                    tabBarIcon: ({ color }) => <Icon name={'settings-5-line'} size={35} color={color} style={{marginTop: 8}}/>,
+                    tabBarIcon: ({ color }) => <Icon name={'settings-5-line'} size={35} color={color} style={{marginTop: '80%'}}/>,
                     headerLeft: () => (
                         <Image
                             source={Logo}
