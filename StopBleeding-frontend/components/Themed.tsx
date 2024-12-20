@@ -3,7 +3,7 @@
  * https://docs.expo.io/guides/color-schemes/
  */
 
-import {Text as DefaultText, View as DefaultView, TouchableOpacity as DefaultTouchableOpacity} from 'react-native';
+import {Text as DefaultText, View as DefaultView, TouchableOpacity as DefaultTouchableOpacity, ScrollView as DefaultScrollView} from 'react-native';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from './useColorScheme';
@@ -17,6 +17,7 @@ type ThemeProps = {
 export type TextProps = ThemeProps & DefaultText['props'];
 export type ViewProps = ThemeProps & DefaultView['props'];
 export type TouchableOpacityProps = ThemeProps & React.ComponentProps<typeof DefaultTouchableOpacity>;
+export type ScrollViewProps = ThemeProps & React.ComponentProps<typeof DefaultScrollView>;
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
@@ -44,6 +45,13 @@ export function View(props: ViewProps) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
   return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
+}
+
+export function ScrollView(props: ScrollViewProps) {
+  const { style, lightColor, darkColor, ...otherProps } = props;
+  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
+
+  return <DefaultScrollView style={[{ backgroundColor }, style]} {...otherProps} />;
 }
 
 export function TouchableOpacity(props: TouchableOpacityProps) {
