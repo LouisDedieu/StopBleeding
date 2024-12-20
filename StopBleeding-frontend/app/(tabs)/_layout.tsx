@@ -1,5 +1,4 @@
 import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import {Image} from 'react-native';
 import Icon from "react-native-remix-icon";
@@ -10,14 +9,6 @@ import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 // @ts-ignore
 import Logo from '@/assets/images/LogoStopBleeding.png';
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(props: {
-    name: React.ComponentProps<typeof FontAwesome>['name'];
-    color: string;
-}) {
-    return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
-
 export default function TabLayout() {
     const colorScheme = useColorScheme();
 
@@ -25,6 +16,7 @@ export default function TabLayout() {
         <Tabs
             screenOptions={{
                 tabBarActiveBackgroundColor: Colors[colorScheme ?? 'light'].tabBackgroundSelected,
+                tabBarInactiveBackgroundColor: '#fffcfc',
                 tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
                 tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
                 headerShown: useClientOnlyValue(false, true),
@@ -32,7 +24,7 @@ export default function TabLayout() {
                 headerTitle: '',
                 tabBarShowLabel: false,
                 headerStyle: {
-                    backgroundColor: Colors[colorScheme ?? 'light'].background,
+                    backgroundColor: Colors[colorScheme ?? 'light'].tintBackground,
                 },
                 tabBarStyle: {
                     flex: 0.08
