@@ -4,6 +4,7 @@ import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View, TouchableOpacity, ScrollView } from '@/components/Themed';
 import Colors from "@/constants/Colors";
 import {useColorScheme} from "@/components/useColorScheme";
+import CustomButton from "@/components/CustomButton";
 
 export default function TabOneScreen() {
     const colorScheme = useColorScheme();
@@ -98,15 +99,7 @@ export default function TabOneScreen() {
                 </ScrollView>
 
             </View>
-            <TouchableOpacity onPress={()=> {}} style={styles.button} lightColor={Colors[colorScheme ?? 'light'].tint} darkColor={Colors[colorScheme ?? 'light'].tint}>
-                <Text style={{
-                    color: 'white',
-                    fontSize: 24,
-                    fontWeight: 800
-                }}>
-                    DÉMARRER
-                </Text>
-            </TouchableOpacity>
+            <CustomButton onPress={() => {}} text={"DÉMARRER"} />
         </View>
     );
 }
