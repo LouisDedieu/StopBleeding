@@ -6,67 +6,69 @@ import Colors from "@/constants/Colors";
 import {useColorScheme} from "@/components/useColorScheme";
 import CustomButton from "@/components/CustomButton";
 
+export const devices = [
+    {
+        id: 1,
+        name: 'Lampe',
+        type: 'light',
+        status: 'on',
+        icon: 'lightbulb-line',
+    },
+    {
+        id: 2,
+        name: 'Prise',
+        type: 'plug',
+        status: 'off',
+        icon: 'plug-line',
+    },
+    {
+        id: 3,
+        name: 'Thermostat',
+        type: 'thermostat',
+        status: 'on',
+        icon: 'thermostat-line',
+    },
+    {
+        id: 4,
+        name: 'Caméra',
+        type: 'camera',
+        status: 'off',
+        icon: 'camera-line',
+    },
+    {
+        id: 5,
+        name: 'Fenêtre',
+        type: 'window',
+        status: 'on',
+        icon: 'window-line',
+    },
+    {
+        id: 6,
+        name: 'Porte',
+        type: 'door',
+        status: 'off',
+        icon: 'door-line',
+    },
+    {
+        id: 7,
+        name: 'Volet',
+        type: 'shutter',
+        status: 'on',
+        icon: 'shutter-line',
+    },
+    {
+        id: 8,
+        name: 'Alarme',
+        type: 'alarm',
+        status: 'off',
+        icon: 'alarm-warning-line',
+    }
+];
+
+
 export default function TabOneScreen() {
     const colorScheme = useColorScheme();
 
-    const devices = [
-        {
-            id: 1,
-            name: 'Lampe',
-            type: 'light',
-            status: 'on',
-            icon: 'lightbulb-line',
-        },
-        {
-            id: 2,
-            name: 'Prise',
-            type: 'plug',
-            status: 'off',
-            icon: 'plug-line',
-        },
-        {
-            id: 3,
-            name: 'Thermostat',
-            type: 'thermostat',
-            status: 'on',
-            icon: 'thermostat-line',
-        },
-        {
-            id: 4,
-            name: 'Caméra',
-            type: 'camera',
-            status: 'off',
-            icon: 'camera-line',
-        },
-        {
-            id: 5,
-            name: 'Fenêtre',
-            type: 'window',
-            status: 'on',
-            icon: 'window-line',
-        },
-        {
-            id: 6,
-            name: 'Porte',
-            type: 'door',
-            status: 'off',
-            icon: 'door-line',
-        },
-        {
-            id: 7,
-            name: 'Volet',
-            type: 'shutter',
-            status: 'on',
-            icon: 'shutter-line',
-        },
-        {
-            id: 8,
-            name: 'Alarme',
-            type: 'alarm',
-            status: 'off',
-            icon: 'alarm-warning-line',
-        }
-    ];
 
     return (
         <View style={styles.container} lightColor={Colors[colorScheme ?? 'light'].tintBackground} darkColor={Colors[colorScheme ?? 'light'].tintBackground}>
