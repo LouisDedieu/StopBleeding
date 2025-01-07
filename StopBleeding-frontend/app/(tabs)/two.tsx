@@ -66,7 +66,10 @@ export default function TabTwoScreen() {
         <TagFilter tags={tags} selectedTags={selectedTags} toggleTag={toggleTag} />
       )}
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <ScrollView style={{ width: '100%' }}>
+      <ScrollView 
+        style={{ width: '100%' }}
+        onScroll={() => setShowTags(false)}
+        scrollEventThrottle={16}>
         {filteredData.map((item, index) => {
           if (item.type === 'radio') {
             return (
