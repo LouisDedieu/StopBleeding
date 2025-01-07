@@ -5,63 +5,37 @@ import { Text, View, TouchableOpacity, ScrollView } from '@/components/Themed';
 import Colors from "@/constants/Colors";
 import {useColorScheme} from "@/components/useColorScheme";
 import CustomButton from "@/components/CustomButton";
+import React from 'react';
+import { Ionicons } from '@expo/vector-icons';
 
 export const devices = [
     {
         id: 1,
-        name: 'Lampe',
-        type: 'light',
+        name: 'Thermomètre',
+        type: 'thermometer',
         status: 'on',
-        icon: 'lightbulb-line',
+        icon: 'thermometer',
     },
     {
         id: 2,
-        name: 'Prise',
-        type: 'plug',
+        name: 'Oxymètre',
+        type: 'oximeter',
         status: 'off',
-        icon: 'plug-line',
+        icon: 'pulse',
     },
     {
         id: 3,
-        name: 'Thermostat',
-        type: 'thermostat',
+        name: 'Tensiomètre',
+        type: 'blood-pressure',
         status: 'on',
-        icon: 'thermostat-line',
+        icon: 'heart',
     },
     {
         id: 4,
         name: 'Caméra',
         type: 'camera',
         status: 'off',
-        icon: 'camera-line',
-    },
-    {
-        id: 5,
-        name: 'Fenêtre',
-        type: 'window',
-        status: 'on',
-        icon: 'window-line',
-    },
-    {
-        id: 6,
-        name: 'Porte',
-        type: 'door',
-        status: 'off',
-        icon: 'door-line',
-    },
-    {
-        id: 7,
-        name: 'Volet',
-        type: 'shutter',
-        status: 'on',
-        icon: 'shutter-line',
-    },
-    {
-        id: 8,
-        name: 'Alarme',
-        type: 'alarm',
-        status: 'off',
-        icon: 'alarm-warning-line',
+        icon: 'camera',
     }
 ];
 
@@ -78,15 +52,15 @@ export default function TabOneScreen() {
                 </View>
                 <View style={styles.devicesTitleContainer}>
                     <Text style={styles.devicesTitle}>Objets connectés</Text>
-                    <TouchableOpacity onPress={() => {}} style={[styles.addButton, {borderColor: Colors[colorScheme ?? 'light'].text}]} activeOpacity={0.6}>
-                        <Text style={styles.addButtonText}>+</Text>
+                  <TouchableOpacity onPress={() => {}} style={[styles.addButton, {borderColor: Colors[colorScheme ?? 'light'].text}]} activeOpacity={0.6}>
+                        <Ionicons name="add" size={24} color="black" style={styles.addButtonText} />
                     </TouchableOpacity>
                 </View>
                 <ScrollView lightColor={Colors[colorScheme ?? 'light'].background} darkColor={Colors[colorScheme ?? 'light'].background}>
                     <FlatList
                         data={devices}
                         renderItem={({item}) => (
-                            <View style={[styles.deviceRow, {borderColor: item.status === 'on' ? 'green' : 'red'}]}>
+                            <View style={[styles.deviceRow, {borderColor: item.status === 'on' ? '#25E32B' : '#DE6C6A'}]}>
                                 <Text style={{fontSize: 16}}>{item.name}</Text>
                                 <View style={[
                                     styles.statusCircle,
@@ -148,7 +122,7 @@ const styles = StyleSheet.create({
     },
     devicesTitle: {
         fontSize: 20,
-        fontWeight: 800,
+        fontWeight: 500,
     },
     deviceRow: {
         flexDirection: 'row',
@@ -159,21 +133,22 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
         borderWidth: 1,
         borderRadius: 10,
+        shadowColor: 'black',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
     addButton: {
-        borderRadius: 50,
-        borderStyle: 'solid',
-        borderWidth: 2,
-        alignItems: 'center',
+        borderRadius: 25,
+        width: 30,
+        height: 30,
         justifyContent: 'center',
-        width: 'auto',
-        height: 'auto',
-        paddingHorizontal: 10,
+        alignItems: 'center',
+        borderWidth: 1,
+        marginRight: 10,
     },
     addButtonText: {
         fontSize: 20,
-        fontWeight: 400,
-        textAlign: 'center',
     },
     statusCircle: {
         width: 17,
@@ -182,9 +157,9 @@ const styles = StyleSheet.create({
         margin: 5,
     },
     statusOn: {
-        backgroundColor: 'green',
+        backgroundColor: '#25E32B',
     },
     statusOff: {
-        backgroundColor: 'red',
+        backgroundColor: '#DE6C6A',
     }
 });
