@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {FlatList, Image, SafeAreaView, StyleSheet, TouchableOpacity, Animated} from 'react-native';
 import { Text, View } from '@/components/Themed';
-import Svg, { Path } from "react-native-svg";
 import Colors from "@/constants/Colors";
 import {devices} from "@/app/(tabs)/index";
 import {useColorScheme} from "@/components/useColorScheme";
+import Icon from "react-native-remix-icon";
 
 const DeviceItem = ({ item }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -43,16 +43,7 @@ const DeviceItem = ({ item }) => {
           <Text style={styles.deviceName}>{item.name}</Text>
         </View>
         <Animated.View style={animatedStyle}>
-          <Svg width="24" height="24" viewBox="0 0 24 24">
-            <Path
-              fill={Colors[colorScheme ?? 'light'].text}
-              d="M7 10l5 5 5-5"
-              stroke={Colors[colorScheme ?? 'light'].text}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </Svg>
+          <Icon name={'arrow-drop-down-fill'} size={40} color={Colors[colorScheme ?? 'light'].text}/>
         </Animated.View>
       </TouchableOpacity>
 
@@ -86,11 +77,12 @@ export default function TabTwoScreen() {
 
       <TouchableOpacity
         onPress={() => {}}
-        style={styles.button}
         activeOpacity={0.8}
-      >
-        <Text style={styles.buttonText}>+</Text>
+        style={{marginBottom: 10}}
+        >
+        <Icon name={"add-circle-line"} size={70} color={Colors[colorScheme ?? 'light'].mainColor}/>
       </TouchableOpacity>
+
     </View>
   );
 }
