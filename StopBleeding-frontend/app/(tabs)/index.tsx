@@ -78,7 +78,7 @@ export default function TabOneScreen() {
                 </View>
                 <View style={styles.devicesTitleContainer}>
                     <Text style={styles.devicesTitle}>Objets connectés</Text>
-                    <TouchableOpacity onPress={() => {}} style={styles.addButton} activeOpacity={0.6}>
+                    <TouchableOpacity onPress={() => {}} style={[styles.addButton, {borderColor: Colors[colorScheme ?? 'light'].text}]} activeOpacity={0.6}>
                         <Text style={styles.addButtonText}>+</Text>
                     </TouchableOpacity>
                 </View>
@@ -164,7 +164,6 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         borderStyle: 'solid',
         borderWidth: 2,
-        borderColor: 'black',
         alignItems: 'center',
         justifyContent: 'center',
         width: 'auto',

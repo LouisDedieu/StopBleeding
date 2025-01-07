@@ -5,7 +5,7 @@ import {useColorScheme} from "@/components/useColorScheme";
 
 const CustomButton = ({ onPress, text }) => {
     const colorScheme = useColorScheme();
-    const buttonColor = Colors[colorScheme ?? 'light'].tint;
+    const buttonColor = Colors[colorScheme ?? 'light'].mainColor;
 
     return (
         <TouchableOpacity

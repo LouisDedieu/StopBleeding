@@ -10,7 +10,7 @@ export default function TabTwoScreen() {
   const colorScheme = useColorScheme();
 
   return (
-      <View style={styles.container} lightColor={Colors[colorScheme ?? 'light'].tintBackground} darkColor={Colors[colorScheme ?? 'light'].tintBackground}>
+      <View style={[styles.container, {backgroundColor: Colors[colorScheme ?? 'light'].tintBackground}]}>
         <View style={styles.subcontainer}>
           <View style={styles.qrholder} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
         </View>
@@ -30,7 +30,6 @@ const styles = StyleSheet.create({
   subcontainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
     flexGrow: 0.9,
     width: '90%',
     borderRadius: 10,
