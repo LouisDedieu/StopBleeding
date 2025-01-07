@@ -1,88 +1,182 @@
-import React, { useState } from 'react';
-import {FlatList, Image, SafeAreaView, StyleSheet, TouchableOpacity, Animated} from 'react-native';
-import { Text, View } from '@/components/Themed';
+import React, {useEffect, useState} from 'react';
+import {
+  FlatList,
+  StyleSheet,
+  Modal,
+  Platform,
+  Alert,
+} from 'react-native';
+import { Text, View, TouchableOpacity } from '@/components/Themed';
 import Colors from "@/constants/Colors";
-import {devices} from "@/app/(tabs)/index";
-import {useColorScheme} from "@/components/useColorScheme";
+import { useColorScheme } from "@/components/useColorScheme";
 import Icon from "react-native-remix-icon";
 
-const DeviceItem = ({ item }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [rotateAnimation] = useState(new Animated.Value(0));
+// Liste des appareils simulée (à remplacer par les vrais appareils détectés)
+const MOCK_DEVICES = [
+  { id: 1, name: 'Appareil 1', type: 'Bluetooth', status: 'Connecté', saved: true },
+  { id: 2, name: 'Appareil 2', type: 'WiFi', status: 'Non connecté', saved: false },
+  { id: 3, name: 'Appareil 3', type: 'Bluetooth', status: 'Non connecté', saved: false },
+];
+
+// Composant pour afficher un appareil dans la liste
+const DeviceItem = ({ device, onPress }) => {
   const colorScheme = useColorScheme();
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-    Animated.timing(rotateAnimation, {
-      toValue: isExpanded ? 0 : 1,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const rotateInterpolate = rotateAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  });
-
-  const animatedStyle = {
-    transform: [{ rotate: rotateInterpolate }],
-  };
-
   return (
-    <View style={styles.deviceContainer}>
-      <TouchableOpacity
-        onPress={toggleExpand}
-        style={styles.deviceHeader}
-      >
-        <View style={styles.deviceInfo}>
-          <Image
-            source={require('@/assets/images/favicon.png')}
-            style={styles.deviceImage}
-          />
-          <Text style={styles.deviceName}>{item.name}</Text>
-        </View>
-        <Animated.View style={animatedStyle}>
-          <Icon name={'arrow-drop-down-fill'} size={40} color={Colors[colorScheme ?? 'light'].text}/>
-        </Animated.View>
-      </TouchableOpacity>
-
-      {isExpanded && (
-        <View style={styles.expandedContent}>
-          <Text>ID: {item.id}</Text>
-          <Text>Type: {item.type || 'Non spécifié'}</Text>
-          <Text>Status: {item.status || 'Actif'}</Text>
-          {/* Ajoutez ici d'autres informations à afficher */}
-        </View>
-      )}
-    </View>
+    <TouchableOpacity
+      style={[styles.deviceItem, { backgroundColor: Colors[colorScheme ?? 'light'].tintBackground }]}
+      onPress={() => onPress(device)}
+    >
+      <View style={[styles.deviceInfo, { backgroundColor: Colors[colorScheme ?? 'light'].tintBackground }]}>
+        <Text style={styles.deviceName}>{device.name}</Text>
+        <Text style={styles.deviceType}>{device.type}</Text>
+      </View>
+      <Text style={[
+        styles.deviceStatus,
+        { color: device.status === 'Connecté' ? Colors.light.tint : 'gray' }
+      ]}>
+        {device.status}
+      </Text>
+    </TouchableOpacity>
   );
 };
 
-export default function TabTwoScreen() {
+// Composant Modal pour la recherche d'appareils
+const ScanModal = ({ visible, onClose, devices }) => {
+
+  const connectToDevice = (device) => {
+    devices.map((d) => {
+      if (d.id === device.id) {
+        d.status = 'Connecté';
+        d.saved = true;
+      }
+    });
+
+    onClose();
+  }
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Appareils détectés</Text>
+
+          <FlatList
+            data={devices.filter((d) => !d.saved)}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <DeviceItem
+                device={item}
+                onPress={(device) => {
+                  Alert.alert(
+                    "Connexion",
+                    `Voulez-vous vous connecter à ${device.name} ?`,
+                    [
+                      { text: "Annuler", style: "cancel" },
+                      { text: "Connecter", onPress: () => {
+                          connectToDevice(device);
+                        }}
+                    ]
+                  );
+                }}
+              />
+            )}
+            style={styles.modalList}
+          />
+
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={onClose}
+          >
+            <Text style={styles.closeButtonText}>Fermer</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+// Composant principal
+export default function ConnectedDevicesScreen() {
   const colorScheme = useColorScheme();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [devices, setDevices] = useState(MOCK_DEVICES);
+
+  // Fonction pour démarrer la recherche (à implémenter avec le vrai scan)
+  const startScan = () => {
+    setModalVisible(true);
+    // Pour l'instant, on utilise les appareils simulés
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Ajouter un objet connecté</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+      <Text style={styles.title}>Mes appareils connectés</Text>
+
+      <View style={styles.separator} />
 
       <FlatList
-        data={devices}
-        renderItem={({ item }) => <DeviceItem item={item} />}
+        data={devices.filter((d) => d.saved)}
         keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <DeviceItem
+            device={item}
+            onPress={(device) => {
+              Alert.alert("Info", `Appareil: ${device.name}`, [
+                item.status === 'Connecté' ?
+                  { text: "Déconnecter", style: "destructive",
+                    onPress: () => {
+                      setDevices(devices.map((d) => {
+                        if (d.id === device.id) {
+                          d.status = 'Non connecté';
+                        }
+                        return d;
+                      }));
+                    }
+                  } : {
+                  text: "Connecter",
+                  onPress: () => {
+                    setDevices(devices.map((d) => {
+                      if (d.id === device.id) {
+                        d.status = 'Connecté';
+                      }
+                      return d;
+                    }));
+                  }
+                }
+                ,
+                { text: "OK" },
+              ]);
+            }}
+          />
+        )}
         style={styles.list}
-        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>
+            Aucun appareil connecté
+          </Text>
+        }
       />
 
       <TouchableOpacity
-        onPress={() => {}}
-        activeOpacity={0.8}
-        style={{marginBottom: 10}}
-        >
-        <Icon name={"add-circle-line"} size={70} color={Colors[colorScheme ?? 'light'].mainColor}/>
+        style={styles.addButton}
+        onPress={startScan}
+      >
+        <Icon
+          name="add-circle-line"
+          size={70}
+          color={Colors[colorScheme ?? 'light'].mainColor}
+        />
       </TouchableOpacity>
 
+      <ScanModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        devices={devices}
+      />
     </View>
   );
 }
@@ -90,70 +184,88 @@ export default function TabTwoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    marginHorizontal: "3%",
-    marginVertical: "7%",
+    padding: 20,
+    margin: 20,
     borderRadius: 10,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginTop: "5%",
+    marginTop: 20,
+    marginBottom: 10,
   },
   separator: {
-    marginVertical: 30,
     height: 1,
-    width: '80%',
+    backgroundColor: '#ccc',
+    marginVertical: 20,
   },
   list: {
-    width: '90%',
+    flex: 1,
   },
-  listContent: {
-    gap: 10,
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 50,
+    color: 'gray',
   },
-  deviceContainer: {
-    borderRadius: 8,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-  },
-  deviceHeader: {
+  deviceItem: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 10,
+    alignItems: 'center',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
   },
   deviceInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  deviceImage: {
-    width: 30,
-    height: 30,
-    marginRight: 10,
+    flex: 1,
   },
   deviceName: {
     fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 4,
   },
-  expandedContent: {
+  deviceType: {
+    fontSize: 14,
+    color: 'gray',
+  },
+  deviceStatus: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  addButton: {
+    alignItems: 'center',
     padding: 10,
   },
-  button: {
-    width: 'auto',
-    paddingHorizontal: 15,
-    borderRadius: 50,
-    alignItems: 'center',
+  modalContainer: {
+    flex: 1,
     justifyContent: 'center',
-    borderStyle: 'solid',
-    borderWidth: 1.5,
-    borderColor: Colors.light.tint,
-    margin: 15,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  buttonText: {
-    color: Colors.light.tint,
-    fontSize: 40,
-    fontWeight: '300',
+  modalContent: {
+    width: '90%',
+    borderRadius: 20,
+    padding: 20,
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
     textAlign: 'center',
-    paddingBottom: 5,
+  },
+  modalList: {
+    maxHeight: '70%',
+  },
+  closeButton: {
+    backgroundColor: Colors.light.tint,
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  closeButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
