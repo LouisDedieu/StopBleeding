@@ -109,7 +109,6 @@ export default function ConnectedDevicesScreen() {
   // Fonction pour démarrer la recherche (à implémenter avec le vrai scan)
   const startScan = () => {
     setModalVisible(true);
-    // Ici, tu implémenteras la vraie logique de scan
     // Pour l'instant, on utilise les appareils simulés
   };
 
@@ -186,6 +185,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    margin: 20,
+    borderRadius: 10,
   },
   title: {
     fontSize: 24,
