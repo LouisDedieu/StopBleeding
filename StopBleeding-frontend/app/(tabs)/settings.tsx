@@ -4,10 +4,12 @@ import { Text, View } from '@/components/Themed';
 import Svg, { Path } from "react-native-svg";
 import Colors from "@/constants/Colors";
 import {devices} from "@/app/(tabs)/index";
+import {useColorScheme} from "@/components/useColorScheme";
 
 const DeviceItem = ({ item }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [rotateAnimation] = useState(new Animated.Value(0));
+  const colorScheme = useColorScheme();
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -43,9 +45,9 @@ const DeviceItem = ({ item }) => {
         <Animated.View style={animatedStyle}>
           <Svg width="24" height="24" viewBox="0 0 24 24">
             <Path
-              fill="#000"
+              fill={Colors[colorScheme ?? 'light'].text}
               d="M7 10l5 5 5-5"
-              stroke="#000"
+              stroke={Colors[colorScheme ?? 'light'].text}
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -67,8 +69,10 @@ const DeviceItem = ({ item }) => {
 };
 
 export default function TabTwoScreen() {
+  const colorScheme = useColorScheme();
+
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Text style={styles.title}>Ajouter un objet connecté</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
 
@@ -87,7 +91,7 @@ export default function TabTwoScreen() {
       >
         <Text style={styles.buttonText}>+</Text>
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -98,7 +102,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     marginHorizontal: "3%",
     marginVertical: "7%",
-    backgroundColor: 'white',
     borderRadius: 10,
   },
   title: {
@@ -118,7 +121,6 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   deviceContainer: {
-    backgroundColor: 'white',
     borderRadius: 8,
     borderBottomWidth: 1,
     borderColor: '#eee',
@@ -128,12 +130,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 10,
-    backgroundColor: 'white',
   },
   deviceInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
   },
   deviceImage: {
     width: 30,
@@ -145,11 +145,9 @@ const styles = StyleSheet.create({
   },
   expandedContent: {
     padding: 10,
-    backgroundColor: '#f9f9f9',
   },
   button: {
     width: 'auto',
-    backgroundColor: '#fff',
     paddingHorizontal: 15,
     borderRadius: 50,
     alignItems: 'center',
