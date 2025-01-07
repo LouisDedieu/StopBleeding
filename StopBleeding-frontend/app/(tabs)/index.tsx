@@ -7,6 +7,7 @@ import {useColorScheme} from "@/components/useColorScheme";
 import CustomButton from "@/components/CustomButton";
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import Icon from "react-native-remix-icon";
 
 export const devices = [
     {
@@ -46,22 +47,22 @@ export default function TabOneScreen() {
 
     return (
         <View style={styles.container} lightColor={Colors[colorScheme ?? 'light'].tintBackground} darkColor={Colors[colorScheme ?? 'light'].tintBackground}>
-            <View style={styles.devicesContainer} lightColor='#fffcfc' darkColor="rgba(255,255,255,0.1)" >
+            <View style={styles.devicesContainer} lightColor='#fffcfc' >
                 <View style={styles.cameraContainer}>
 
                 </View>
                 <View style={styles.devicesTitleContainer}>
                     <Text style={styles.devicesTitle}>Objets connectés</Text>
                   <TouchableOpacity onPress={() => {}} style={[styles.addButton, {borderColor: Colors[colorScheme ?? 'light'].text}]} activeOpacity={0.6}>
-                        <Ionicons name="add" size={24} color="black" style={styles.addButtonText} />
-                    </TouchableOpacity>
+                      <Icon name={"add-circle-line"} size={35} color={Colors[colorScheme ?? 'light'].text}/>
+                  </TouchableOpacity>
                 </View>
                 <ScrollView lightColor={Colors[colorScheme ?? 'light'].background} darkColor={Colors[colorScheme ?? 'light'].background}>
                     <FlatList
                         data={devices}
                         renderItem={({item}) => (
                             <View style={[styles.deviceRow, {borderColor: item.status === 'on' ? '#25E32B' : '#DE6C6A'}]}>
-                                <Text style={{fontSize: 16}}>{item.name}</Text>
+                                <Text style={{fontSize: 16, fontWeight: 500}}>{item.name}</Text>
                                 <View style={[
                                     styles.statusCircle,
                                     item.status === 'on' ? styles.statusOn : styles.statusOff
@@ -119,10 +120,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 10,
+        marginBottom: 7,
     },
     devicesTitle: {
         fontSize: 20,
-        fontWeight: 500,
+        fontWeight: 700,
     },
     deviceRow: {
         flexDirection: 'row',
