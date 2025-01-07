@@ -5,6 +5,7 @@ import { Text, View, TouchableOpacity, ScrollView } from '@/components/Themed';
 import Colors from "@/constants/Colors";
 import {useColorScheme} from "@/components/useColorScheme";
 import CustomButton from "@/components/CustomButton";
+import React from 'react';
 
 export const devices = [
     {
