@@ -37,7 +37,7 @@ export const devices = [
         type: 'camera',
         status: 'off',
         icon: 'camera',
-    }
+    },
 ];
 
 
@@ -57,23 +57,21 @@ export default function TabOneScreen() {
                       <Icon name={"add-circle-line"} size={35} color={Colors[colorScheme ?? 'light'].text}/>
                   </TouchableOpacity>
                 </View>
-                <ScrollView lightColor={Colors[colorScheme ?? 'light'].background} darkColor={Colors[colorScheme ?? 'light'].background}>
-                    <FlatList
-                        data={devices}
-                        renderItem={({item}) => (
-                            <View style={[styles.deviceRow, {borderColor: item.status === 'on' ? '#25E32B' : '#DE6C6A'}]}>
-                                <Text style={{fontSize: 16, fontWeight: 500}}>{item.name}</Text>
-                                <View style={[
-                                    styles.statusCircle,
-                                    item.status === 'on' ? styles.statusOn : styles.statusOff
-                                ]} />
-                            </View>
-                        )}
-                        keyExtractor={(item) => item.id.toString()}
-                        contentContainerStyle={{gap: 10}}
-                        style={{marginBottom: 10}}
-                    />
-                </ScrollView>
+                <FlatList
+                  data={devices}
+                  renderItem={({item}) => (
+                    <View style={[styles.deviceRow, {borderColor: item.status === 'on' ? '#25E32B' : '#DE6C6A'}]}>
+                        <Text style={{fontSize: 16, fontWeight: 500}}>{item.name}</Text>
+                        <View style={[
+                            styles.statusCircle,
+                            item.status === 'on' ? styles.statusOn : styles.statusOff
+                        ]} />
+                    </View>
+                  )}
+                  keyExtractor={(item) => item.id.toString()}
+                  contentContainerStyle={{gap: 10}}
+                  style={{marginBottom: 10}}
+                />
 
             </View>
             <CustomButton onPress={() => {}} text={"DÉMARRER"} />
