@@ -56,6 +56,13 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="takePicture"
+                options={{
+                    tabBarButton: () => null,
+                    headerShown: false,
+                }}
+            />
+            <Tabs.Screen
                 name="qrcode"
                 options={{
                     tabBarIcon: ({ color }) => <Icon name={"qr-code-line"} size={35} color={color} style={{marginTop: '80%'}}/>,
@@ -79,6 +86,7 @@ export default function TabLayout() {
                     )
                 }}
             />
+
         </Tabs>
     );
 }
