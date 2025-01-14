@@ -12,6 +12,8 @@ export default function TabTwoScreen() {
   const [searchText, setSearchText] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [showTags, setShowTags] = useState(false)
+  const [isMicrophoneActive, setIsMicrophoneActive] = useState(false)
+  const [isRecording, setIsRecording] = useState(false);
 
   const patientData = [
     { type: 'input', label: 'Nom', placeholder: 'Doe' },
@@ -46,6 +48,11 @@ export default function TabTwoScreen() {
     )
   }
 
+  const toggleMicrophone = () => {
+    setIsMicrophoneActive(!isMicrophoneActive);
+    // Vous pouvez ajouter ici des actions comme démarrer/arrêter l'enregistrement audio
+  };
+
   const filteredData = patientData.filter(item => {
     const labelMatch = item.label.toLowerCase().includes(searchText.toLowerCase())
     const valuesMatch = item.values?.some(value => value.toLowerCase().includes(searchText.toLowerCase()))
@@ -56,6 +63,55 @@ export default function TabTwoScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Fiche Patient</Text>
+      <View style={styles.microphoneContainer}>
+        <TouchableOpacity
+          style={[
+            styles.microphoneButton,
+            isMicrophoneActive ? styles.microphoneActive : styles.microphoneInactive,
+          ]}
+          onPress={toggleMicrophone}
+        >
+          <Ionicons
+            name={isMicrophoneActive ? 'mic' : 'mic-off'}
+            size={32}
+            color={isMicrophoneActive ? 'white' : 'gray'}
+          />
+        </TouchableOpacity>
+        <Text style={styles.microphoneStatus}>
+          Microphone {isMicrophoneActive ? 'Activé' : 'Désactivé'}
+        </Text>
+      </View>
+      {isMicrophoneActive && (
+        <TouchableOpacity 
+          style={styles.speechToTextSection}
+          onPress={() => setIsRecording(!isRecording)}
+        >
+          <TouchableOpacity 
+            style={[
+              styles.controlButton,
+              !isRecording && { paddingLeft: 3 },
+              isRecording && { paddingLeft: 0 }
+            ]}
+            onPress={() => setIsRecording(!isRecording)}
+          >
+            <Ionicons name={isRecording ? "pause" : "play"} size={24} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.speechToTextText}>
+            {isRecording ? 'Enregistrement\nen cours...' : 'Appuyez pour démarrer\nle speech to text'}
+          </Text>
+          {isRecording && (
+            <TouchableOpacity
+              style={styles.controlButton}
+              onPress={() => {
+                setIsRecording(false);
+                setIsMicrophoneActive(false); // Optionnel : Désactive le microphone
+              }}
+            >
+              <Ionicons name="stop" size={24} color="black" />
+            </TouchableOpacity>
+          )}
+        </TouchableOpacity>
+      )}
       <View style={styles.searchContainer}>
         <SearchBar onSearch={handleSearch} />
         <TouchableOpacity onPress={() => setShowTags(!showTags)} style={styles.toggleButton}>
@@ -106,6 +162,57 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+  },
+  microphoneContainer: {
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  microphoneButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  microphoneActive: {
+    backgroundColor: 'red',
+  },
+  microphoneInactive: {
+    backgroundColor: '#ccc',
+  },
+  microphoneStatus: {
+    fontSize: 16,
+    color: '#555',
+  },
+  speechToTextSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: '#d9d9d9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  controlButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+    borderWidth: 3,
+    borderColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 0,
+  },
+  speechToTextText: {
+    fontSize: 22,
+    color: '#333',
+    flex: 1,
+    textAlign: 'center',
   },
   searchContainer: {
     flexDirection: 'row',
