@@ -16,7 +16,7 @@ export default function TabLayout() {
         <Tabs
             screenOptions={{
                 tabBarActiveBackgroundColor: Colors[colorScheme ?? 'light'].tabBackgroundSelected,
-                tabBarInactiveBackgroundColor: '#fffcfc',
+                tabBarInactiveBackgroundColor: Colors[colorScheme ?? 'light'].tabBackgroundColor,
                 tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
                 tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
                 headerShown: useClientOnlyValue(false, true),
@@ -56,6 +56,13 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="takePicture"
+                options={{
+                    tabBarButton: () => null,
+                    headerShown: false,
+                }}
+            />
+            <Tabs.Screen
                 name="qrcode"
                 options={{
                     tabBarIcon: ({ color }) => <Icon name={"qr-code-line"} size={35} color={color} style={{marginTop: '80%'}}/>,
@@ -79,6 +86,7 @@ export default function TabLayout() {
                     )
                 }}
             />
+
         </Tabs>
     );
 }

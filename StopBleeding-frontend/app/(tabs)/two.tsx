@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import {Button, StyleSheet, TouchableOpacity} from 'react-native';
 import { ScrollView, Text, View } from '@/components/Themed';
 import React, { useState } from 'react';
 import Input from '@/components/Input';
@@ -7,7 +7,9 @@ import RadioButton from '@/components/RadioButton';
 import SearchBar from '@/components/SearchBar';
 import TagFilter from '@/components/TagFilter';
 import { Ionicons } from '@expo/vector-icons';
-
+import { useRouter,useLocalSearchParams} from "expo-router";
+import {Image} from 'react-native';
+import CustomButton from "@/components/CustomButton";
 export default function TabTwoScreen() {
   const [searchText, setSearchText] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
@@ -37,6 +39,18 @@ export default function TabTwoScreen() {
   ]
 
   const tags = ['Nom', 'Prénom', 'Âge', 'Poids', 'Sexe', 'Antécédents médicaux', 'Symptômes', 'Traitements', 'Allergies', 'Vaccins', 'Groupe sanguin', 'Facteurs de risque', 'Traitements en cours', 'Médicaments', 'Chirurgies', 'Physiothérapie', 'Autres traitements']
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const {photoUri: paramPhotoUri } = useLocalSearchParams();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (paramPhotoUri) {
+      // @ts-ignore
+      const validUri = paramPhotoUri.startsWith('file://') ? paramPhotoUri : `file://${paramPhotoUri}`;
+      console.log("URI validé:", validUri);
+      setPhotoUri(validUri);
+    }
+  }, [paramPhotoUri]);
 
   const handleSearch = (text: string) => {
     setSearchText(text)
@@ -122,7 +136,11 @@ export default function TabTwoScreen() {
         <TagFilter tags={tags} selectedTags={selectedTags} toggleTag={toggleTag} />
       )}
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <ScrollView style={{ width: '100%' }}>
+      <ScrollView
+        style={{ width: '100%' }}
+        onScroll={() => setShowTags(false)}
+        scrollEventThrottle={16}>
+
         {filteredData.map((item, index) => {
           if (item.type === 'radio') {
             return (
@@ -149,6 +167,27 @@ export default function TabTwoScreen() {
             )
           }
         })}
+        <View style={{alignItems : 'center'}}>
+        {photoUri ? (
+            <Image
+                source={{ uri: photoUri }}
+                style={styles.picture}
+                resizeMode="contain"
+                onError={(error) => console.log("Erreur de chargement de l'image:", error)} // Ajout pour déboguer
+                onLoad={() => console.log("Image chargée avec succès")} // Ajout pour déboguer
+            />
+        ):(
+            <Image
+                source={{}}
+                style={styles.noPicture}
+                resizeMode="contain"
+            />
+        )}
+        <CustomButton
+            text="Prendre une photo"
+            onPress={() => router.push('../takePicture')}
+        />
+        </View>
       </ScrollView>
     </View>
   )
@@ -227,5 +266,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 5,
+  },
+  picture: {
+    marginTop: 20,
+    width: '100%',
+    height: 300,
+  },
+  noPicture: {
+    marginBottom: 20,
+    width: '80%',
+    height: 200,
+    backgroundColor : 'grey',
   },
 })
