@@ -62,6 +62,7 @@ export default function TabOneScreen() {
     const demarreIntervention = async()=>{
         console.log("reset cache")
         await AsyncStorage.removeItem('formData');
+        await AsyncStorage.removeItem('photos');
     }
     return (
         <View style={styles.container} lightColor={Colors[colorScheme ?? 'light'].tintBackground} darkColor={Colors[colorScheme ?? 'light'].tintBackground}>

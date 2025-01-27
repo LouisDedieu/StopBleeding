@@ -1,5 +1,6 @@
+// Input.tsx
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 
 interface InputProps {
   label: string;
@@ -10,14 +11,32 @@ interface InputProps {
 }
 
 const Input: React.FC<InputProps> = ({ label, number, placeholder, value, onChangeText }) => {
+  const [localValue, setLocalValue] = useState(value);
+
+  // Mettre à jour la valeur locale quand la prop value change
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  const handleEndEditing = () => {
+    // Ne mettre à jour que si la valeur a changé
+    if (localValue !== value) {
+      onChangeText(localValue);
+    }
+  };
+
   const increment = () => {
-    const currentValue = parseInt(value) || 0
-    onChangeText((currentValue + 1).toString())
+    const currentValue = parseInt(localValue) || 0;
+    const newValue = (currentValue + 1).toString();
+    setLocalValue(newValue);
+    onChangeText(newValue); // Pour les nombres, on met à jour immédiatement
   }
 
   const decrement = () => {
-    const currentValue = parseInt(value) || 0
-    onChangeText(currentValue > 0 ? (currentValue - 1).toString() : '0')
+    const currentValue = parseInt(localValue) || 0;
+    const newValue = currentValue > 0 ? (currentValue - 1).toString() : '0';
+    setLocalValue(newValue);
+    onChangeText(newValue); // Pour les nombres, on met à jour immédiatement
   }
 
   if (number) {
@@ -31,8 +50,9 @@ const Input: React.FC<InputProps> = ({ label, number, placeholder, value, onChan
             <TextInput
                 style={styles.inputNumber}
                 keyboardType="numeric"
-                onChangeText={onChangeText}
-                value={value}
+                onChangeText={setLocalValue}
+                onEndEditing={handleEndEditing}
+                value={localValue}
                 placeholder={placeholder}
             />
             <TouchableOpacity onPress={increment} style={styles.arrowButton}>
@@ -48,8 +68,9 @@ const Input: React.FC<InputProps> = ({ label, number, placeholder, value, onChan
         <Text style={styles.label}>{label}</Text>
         <TextInput
             style={styles.input}
-            onChangeText={onChangeText}
-            value={value}
+            onChangeText={setLocalValue}
+            onEndEditing={handleEndEditing}
+            value={localValue}
             placeholder={placeholder}
             multiline
         />
