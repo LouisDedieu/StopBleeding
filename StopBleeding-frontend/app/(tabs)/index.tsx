@@ -10,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Icon from "react-native-remix-icon";
 import {Camera, CameraType, CameraView, useCameraPermissions} from "expo-camera";
 import {useIsFocused} from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const devices = [
     {
@@ -58,7 +59,10 @@ export default function TabOneScreen() {
             </View>
         );
     }
-
+    const demarreIntervention = async()=>{
+        console.log("reset cache")
+        await AsyncStorage.removeItem('formData');
+    }
     return (
         <View style={styles.container} lightColor={Colors[colorScheme ?? 'light'].tintBackground} darkColor={Colors[colorScheme ?? 'light'].tintBackground}>
             <View style={styles.devicesContainer} lightColor='#fffcfc' >
@@ -91,7 +95,7 @@ export default function TabOneScreen() {
                 </ScrollView>
 
             </View>
-            <CustomButton onPress={() => {}} text={"DÉMARRER"} />
+            <CustomButton onPress={demarreIntervention} text={"DÉMARRER"} />
         </View>
     );
 }
