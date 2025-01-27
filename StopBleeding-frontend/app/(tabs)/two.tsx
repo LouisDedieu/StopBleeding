@@ -188,12 +188,49 @@ export default function TabTwoScreen() {
   }, [isFocused]);
 
   React.useEffect(() => {
+    const loadPhotos = async () => {
+      try {
+        const savedPhotos = await AsyncStorage.getItem('photos');
+        if (savedPhotos) {
+          setPhotoUris(JSON.parse(savedPhotos));
+        }else{
+          setPhotoUris({});
+        }
+      } catch (e) {
+        console.error('Erreur lors du chargement des photos:', e);
+      }
+    };
+
+    if (isFocused) {
+      loadPhotos();
+    }
+  }, [isFocused]);
+
+
+
+  React.useEffect(() => {
+    const savePhotos = async () => {
+      try {
+        await AsyncStorage.setItem('photos', JSON.stringify(photoUris));
+      } catch (e) {
+        console.error('Erreur lors de la sauvegarde des photos:', e);
+      }
+    };
+
+    if (photoUris.length > 0) {
+      savePhotos();
+    }
+  }, [photoUris]);
+
+  React.useEffect(() => {
     if (typeof paramPhotoUri === 'string') {
       const validUri = paramPhotoUri.startsWith('file://') ? paramPhotoUri : `file://${paramPhotoUri}`;
       setPhotoUris((prevUris) => {
-        console.log("deja : " + prevUris[0]?.toLowerCase());
-        console.log("new : " + paramPhotoUri.toLowerCase());
-        return [...prevUris, validUri.toString()];
+        // Vérifier si la photo n'existe pas déjà
+        if (!prevUris.includes(validUri)) {
+          return [...prevUris, validUri];
+        }
+        return prevUris;
       });
     }
   }, [paramPhotoUri]);
@@ -260,11 +297,12 @@ export default function TabTwoScreen() {
         case 'photo':
           return (
               <View style={styles.photoSection}>
+                <CustomButton
+                    text="Prendre une photo"
+                    onPress={handleTakePhoto}
+                />
                 {photoUris.length > 0 ? (
-                    <ScrollView
-                        horizontal
-                        contentContainerStyle={styles.scrollViewPhoto}
-                    >
+                    <View style={styles.photoGrid}>
                       {photoUris.map((uri, index) => (
                           <Image
                               key={index}
@@ -273,14 +311,11 @@ export default function TabTwoScreen() {
                               resizeMode="contain"
                           />
                       ))}
-                    </ScrollView>
+                    </View>
                 ) : (
                     <View style={styles.noPicture} />
                 )}
-                <CustomButton
-                    text="Prendre une photo"
-                    onPress={handleTakePhoto}
-                />
+
               </View>
           );
 
@@ -467,13 +502,22 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   photoSection: {
+    width: '100%',
     alignItems: 'center',
     marginTop: 20,
     marginBottom: 40,
+  },photoGrid: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
   picture: {
-    width: '45%',
-    height: 300,
+    width: Dimensions.get('window').width * 0.35,
+    height: 200,
+    marginBottom: 10,
   },
   noPicture: {
     width: '80%',

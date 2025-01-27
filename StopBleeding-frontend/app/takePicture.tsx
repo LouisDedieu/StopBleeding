@@ -5,6 +5,7 @@ import { Camera } from "expo-camera";
 import { Image } from 'react-native';
 import { router } from "expo-router";
 import { useIsFocused } from '@react-navigation/native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function TakePicture() {
     const [facing, setFacing] = useState<CameraType>('back');
@@ -37,10 +38,29 @@ export default function TakePicture() {
                 });
 
                 if (photo.uri && photo.uri.startsWith('file://')) {
-                    // Ferme d'abord le Modal
+                    // Récupérer les photos existantes
+                    let existingPhotos = [];
+                    try {
+                        const savedPhotos = await AsyncStorage.getItem('photos');
+                        if (savedPhotos) {
+                            existingPhotos = JSON.parse(savedPhotos);
+                        }
+                    } catch (e) {
+                        console.error("Erreur lors de la lecture des photos:", e);
+                    }
+
+                    // Ajouter la nouvelle photo
+                    const updatedPhotos = [...existingPhotos, photo.uri];
+
+                    // Sauvegarder dans AsyncStorage
+                    try {
+                        await AsyncStorage.setItem('photos', JSON.stringify(updatedPhotos));
+                    } catch (e) {
+                        console.error("Erreur lors de la sauvegarde de la photo:", e);
+                    }
+
+                    // Fermer le Modal et retourner à l'écran précédent
                     setModalVisible(false);
-                    console.log("photo prise : " + photo.uri)
-                    // Retourne à l'écran précédent avec l'URI de la photo
                     router.navigate({
                         pathname: "/(tabs)/two",
                         params: { photoUri: photo.uri }
@@ -53,7 +73,6 @@ export default function TakePicture() {
             }
         }
     }
-
     return (
         <Modal
             visible={modalVisible}
