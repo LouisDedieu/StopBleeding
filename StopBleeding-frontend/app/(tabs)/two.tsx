@@ -12,6 +12,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import CustomButton from "@/components/CustomButton";
 import WatchDashboard from '@/components/WatchDashboard';
 import WatchDataHistory from '@/components/WatchDataHistory';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Interface pour définir la structure d'un élément de formulaire
 interface FormItem {
@@ -22,6 +23,9 @@ interface FormItem {
   values?: string[];
   priority?: 'high' | 'normal';
   multiline?: boolean;
+}
+interface FormState {
+  [key: string]: string | string[] | undefined;
 }
 
 // Interface pour définir la structure d'une section
@@ -36,12 +40,46 @@ export default function TabTwoScreen() {
   const [searchText, setSearchText] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTags, setShowTags] = useState(false);
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
-  
+  const [photoUris, setPhotoUris] = useState<string[]>([]);
   const router = useRouter();
   const { photoUri: paramPhotoUri } = useLocalSearchParams();
+  const [formData, setFormData] = useState<FormState>({});
 
+  React.useEffect(() => {
+    const saveData = async () => {
+      if (Object.keys(formData).length > 0) {
+        try {
+          await AsyncStorage.setItem('formData', JSON.stringify(formData));
+        } catch (e) {
+          console.error('Erreur lors de la sauvegarde des données :', e);
+        }
+      }
+    };
+    saveData();
+  }, [formData]);
+
+// Charger les données depuis AsyncStorage
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        const savedData = await AsyncStorage.getItem('formData');
+        if (savedData) {
+          setFormData(JSON.parse(savedData));
+        }
+      } catch (e) {
+        console.error('Erreur lors du chargement des données :', e);
+      }
+    };
+    loadData();
+  }, []);
+  const handleInputChange = (label: string, value: string | string[]) => {
+    setFormData(prev => ({
+      ...prev,
+      [label]: value
+    }));
+  };
   // Définition des données du formulaire avec une structure organisée pour les pompiers
+
   const patientData: Section[] = [
     {
       type: 'section',
@@ -112,6 +150,16 @@ export default function TabTwoScreen() {
         { type: 'input', label: 'Médicaments administrés', multiline: true },
         { type: 'input', label: 'Observations', multiline: true },
       ]
+    },
+    {
+      type: 'section',
+      label: 'Photo de l\'intervention',
+      items: [
+        {
+          type: 'photo',
+          label: 'Photos',
+        },
+      ]
     }
   ];
 
@@ -120,11 +168,15 @@ export default function TabTwoScreen() {
     section.items.map(item => item.label)
   );
 
-  // Effet pour gérer l'URI de la photo
+
   React.useEffect(() => {
     if (typeof paramPhotoUri === 'string') {
       const validUri = paramPhotoUri.startsWith('file://') ? paramPhotoUri : `file://${paramPhotoUri}`;
-      setPhotoUri(validUri);
+      setPhotoUris((prevUris) => {
+        console.log("deja : " + prevUris[0]?.toLowerCase());
+        console.log("new : " + paramPhotoUri.toLowerCase());
+        return [...prevUris, validUri.toString()];
+      });
     }
   }, [paramPhotoUri]);
 
@@ -156,6 +208,8 @@ export default function TabTwoScreen() {
                 label={item.label}
                 placeholder={item.placeholder}
                 number={item.number}
+                value={formData[item.label] as string}
+                onChangeText={(value) => handleInputChange(item.label, value)}
               />
             </View>
           );
@@ -163,14 +217,19 @@ export default function TabTwoScreen() {
           return (
             <View style={itemStyle}>
               <Text style={styles.label}>{item.label}</Text>
-              <RadioButton values={item.values || []} />
+              <RadioButton values={item.values || []}  selectedValue={formData[item.label] as string}
+                           onValueChange={(value) => handleInputChange(item.label, value)}/>
             </View>
           );
         case 'checkbox':
           return (
             <View style={itemStyle}>
               <Text style={styles.label}>{item.label}</Text>
-              <CheckBox values={item.values || []} />
+              <CheckBox
+                  values={item.values || []}
+                  selectedValues={formData[item.label] as string[] || []}
+                  onValuesChange={(values) => handleInputChange(item.label, values)}
+              />
             </View>
           );
         case 'watch-data':
@@ -180,11 +239,46 @@ export default function TabTwoScreen() {
               <WatchDataHistory />
             </View>
           );
+        case 'photo':
+          return (
+              <View style={styles.photoSection}>
+                {photoUris.length > 0 ? (
+                    <ScrollView
+                        horizontal
+                        contentContainerStyle={styles.scrollViewPhoto}
+                    >
+                      {photoUris.map((uri, index) => (
+                          <Image
+                              key={index}
+                              source={{ uri }}
+                              style={styles.picture}
+                              resizeMode="contain"
+                          />
+                      ))}
+                    </ScrollView>
+                ) : (
+                    <View style={styles.noPicture} />
+                )}
+                <CustomButton
+                    text="Prendre une photo"
+                    onPress={handleTakePhoto}
+                />
+              </View>
+          );
+
         default:
           return null;
       }
     };
-
+    const handleTakePhoto = async() => {
+      // Sauvegarder l'état actuel avant la navigation
+      try {
+        await AsyncStorage.setItem('formData', JSON.stringify(formData));
+      } catch (e) {
+        console.error('Erreur lors de la sauvegarde des données :', e);
+      }
+      router.push('../takePicture');
+    };
     return (
       <View style={styles.sectionContainer}>
         <TouchableOpacity 
@@ -270,22 +364,7 @@ export default function TabTwoScreen() {
             <SectionComponent key={index} section={section} />
           ))}
 
-          {/* Section photo */}
-          <View style={styles.photoSection}>
-            {photoUri ? (
-              <Image
-                source={{ uri: photoUri }}
-                style={styles.picture}
-                resizeMode="contain"
-              />
-            ) : (
-              <View style={styles.noPicture} />
-            )}
-            <CustomButton
-              text="Prendre une photo"
-              onPress={() => router.push('../takePicture')}
-            />
-          </View>
+
         </ScrollView>
       </View>
     </View>
@@ -375,9 +454,8 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   picture: {
-    width: '100%',
+    width: '45%',
     height: 300,
-    marginBottom: 16,
   },
   noPicture: {
     width: '80%',
@@ -385,4 +463,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'grey',
     marginBottom: 16,
   },
+  scrollViewPhoto:{
+    flex :1,
+    flexDirection:"row",
+    gap:20,
+    width:"100%",
+    height:300,
+    marginBottom: 16,
+  }
 });

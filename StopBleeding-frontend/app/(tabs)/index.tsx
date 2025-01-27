@@ -1,13 +1,15 @@
-import {FlatList, StyleSheet} from 'react-native';
+import {Button, FlatList, StyleSheet} from 'react-native';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View, TouchableOpacity, ScrollView } from '@/components/Themed';
 import Colors from "@/constants/Colors";
 import {useColorScheme} from "@/components/useColorScheme";
 import CustomButton from "@/components/CustomButton";
-import React from 'react';
+import React, {useRef, useState} from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import Icon from "react-native-remix-icon";
+import {Camera, CameraType, CameraView, useCameraPermissions} from "expo-camera";
+import {useIsFocused} from "@react-navigation/native";
 
 export const devices = [
     {
@@ -35,7 +37,7 @@ export const devices = [
         id: 4,
         name: 'Caméra',
         type: 'camera',
-        status: 'off',
+        status: 'on',
         icon: 'camera',
     }
 ];
@@ -43,12 +45,25 @@ export const devices = [
 
 export default function TabOneScreen() {
     const colorScheme = useColorScheme();
+    const [facing, setFacing] = useState<CameraType>('back');
+    const [permission, requestPermission] = useCameraPermissions();
+     const cameraRef = useRef<Camera>(null);
+    const isFocused = useIsFocused();
 
+    if ((!permission || !permission.granted) && devices[3].status == "on") {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.message}>La permission d'utiliser la caméra n'a pas été accordée</Text>
+                <Button onPress={requestPermission} title="grant permission" />
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container} lightColor={Colors[colorScheme ?? 'light'].tintBackground} darkColor={Colors[colorScheme ?? 'light'].tintBackground}>
             <View style={styles.devicesContainer} lightColor='#fffcfc' >
                 <View style={styles.cameraContainer}>
+                    {isFocused && <CameraView ref={cameraRef} style={styles.camera} facing={facing}/>}
 
                 </View>
                 <View style={styles.devicesTitleContainer}>
@@ -163,5 +178,12 @@ const styles = StyleSheet.create({
     },
     statusOff: {
         backgroundColor: '#DE6C6A',
-    }
+    },
+    camera: {
+        flex: 1,
+    },
+    message: {
+        textAlign: 'center',
+        paddingBottom: 10,
+    },
 });
