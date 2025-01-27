@@ -13,7 +13,7 @@ import CustomButton from "@/components/CustomButton";
 import WatchDashboard from '@/components/WatchDashboard';
 import WatchDataHistory from '@/components/WatchDataHistory';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { useIsFocused } from '@react-navigation/native'; // Importer useIsFocused
 // Interface pour définir la structure d'un élément de formulaire
 interface FormItem {
   type: string;
@@ -45,6 +45,7 @@ export default function TabTwoScreen() {
   const { photoUri: paramPhotoUri } = useLocalSearchParams();
   const [formData, setFormData] = useState<FormState>({});
 
+  const isFocused = useIsFocused();
   React.useEffect(() => {
     const saveData = async () => {
       if (Object.keys(formData).length > 0) {
@@ -167,7 +168,24 @@ export default function TabTwoScreen() {
   const tags = patientData.flatMap(section => 
     section.items.map(item => item.label)
   );
+  React.useEffect(() => {
+    if (isFocused) {
+      const loadData = async () => {
+        try {
+          const savedData = await AsyncStorage.getItem('formData');
 
+          if (savedData) {
+            setFormData(JSON.parse(savedData));
+          }else{
+            setFormData({})
+          }
+        } catch (e) {
+          console.error('Erreur lors du chargement des données :', e);
+        }
+      };
+      loadData();
+    }
+  }, [isFocused]);
 
   React.useEffect(() => {
     if (typeof paramPhotoUri === 'string') {
