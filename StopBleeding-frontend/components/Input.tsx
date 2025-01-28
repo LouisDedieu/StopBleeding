@@ -5,50 +5,77 @@ interface InputProps {
   label: string;
   number?: boolean;
   placeholder?: string;
+  value?: string;
+  onChange?: (text: string) => void;  // Ajout de la prop onChange
 }
 
-const Input: React.FC<InputProps> = ({ label, number, placeholder }) => {
-  const [text, setText] = useState('')
-  const [num, setNum] = useState(0)
-
-  const increment = () => setNum(prev => prev + 1)
-  const decrement = () => setNum(prev => (prev > 0 ? prev - 1 : 0))
+const Input: React.FC<InputProps> = ({ label, number, placeholder, value, onChange }) => {
+  // const [text, setText] = useState('')
+  // const [num, setNum] = useState(0)
+  
+  // const increment = () => {
+  //   const newValue = num + 1;
+  //   setNum(newValue);
+  //   onChange?.(newValue.toString());  // Appel de onChange si défini
+  // }
+  
+  // const decrement = () => {
+  //   const newValue = num > 0 ? num - 1 : 0;
+  //   setNum(newValue);
+  //   onChange?.(newValue.toString());  // Appel de onChange si défini
+  // }
 
   if (number) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.label}>{label}</Text>
-        <View style={styles.inputContainer}>
-          <TouchableOpacity onPress={decrement} style={styles.arrowButton}>
-            <Text style={styles.arrowText}>-</Text>
-          </TouchableOpacity>
-          <TextInput
-            style={styles.inputNumber}
-            keyboardType="numeric"
-            onChangeText={text => setNum(parseInt(text) || 0)}
-            value={num.toString()}
-            placeholder={placeholder}
-          />
-          <TouchableOpacity onPress={increment} style={styles.arrowButton}>
-            <Text style={styles.arrowText}>+</Text>
-          </TouchableOpacity>
+        <View style={styles.container}>
+            <Text style={styles.label}>{label}</Text>
+            <View style={styles.inputContainer}>
+                <TouchableOpacity 
+                    onPress={() => {
+                        const currentValue = parseInt(value || '0');
+                        const newValue = Math.max(0, currentValue - 1);
+                        onChange?.(newValue.toString());
+                    }} 
+                    style={styles.arrowButton}
+                >
+                    <Text style={styles.arrowText}>-</Text>
+                </TouchableOpacity>
+                <TextInput
+                    style={styles.inputNumber}
+                    keyboardType="numeric"
+                    onChangeText={(text) => {
+                        const newValue = parseInt(text) || 0;
+                        onChange?.(newValue.toString());
+                    }}
+                    value={value || '0'}
+                    placeholder={placeholder}
+                />
+                <TouchableOpacity 
+                    onPress={() => {
+                        const currentValue = parseInt(value || '0');
+                        onChange?.((currentValue + 1).toString());
+                    }} 
+                    style={styles.arrowButton}
+                >
+                    <Text style={styles.arrowText}>+</Text>
+                </TouchableOpacity>
+            </View>
         </View>
-      </View>
     )
-  }
+}
 
-  return (
+return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={setText}
-        value={text}
-        placeholder={placeholder}
-        multiline
-      />
+        <Text style={styles.label}>{label}</Text>
+        <TextInput
+            style={styles.input}
+            onChangeText={onChange}
+            value={value || ''}
+            placeholder={placeholder}
+            multiline
+        />
     </View>
-  )
+)
 }
 
 export default Input

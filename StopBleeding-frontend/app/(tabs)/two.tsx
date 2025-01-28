@@ -1,6 +1,7 @@
 import {Button, StyleSheet, TouchableOpacity} from 'react-native';
 import { ScrollView, Text, View } from '@/components/Themed';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Voice from '@react-native-voice/voice';
 import Input from '@/components/Input';
 import CheckBox from '@/components/CheckBox';
 import RadioButton from '@/components/RadioButton';
@@ -10,17 +11,43 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter,useLocalSearchParams} from "expo-router";
 import {Image} from 'react-native';
 import CustomButton from "@/components/CustomButton";
+
+type FormField =
+  | 'nom'
+  | 'prenom'
+  | 'age'
+  | 'poids'
+  | 'sexe'
+  | 'groupesanguin'
+  | 'allergies'
+  | 'symptomes'
+  | 'antecedentsmedicaux'
+  | 'traitements'
+  | 'vaccins'
+  | 'facteursrisque'
+  | 'traitementsencours'
+  | 'medicaments'
+  | 'chirurgies'
+  | 'physiotherapie'
+  | 'autrestraitements'
+  | 'autresinformations';
+
+type FormValues = {
+  [K in FormField]?: string | string[];
+}
+
 export default function TabTwoScreen() {
   const [searchText, setSearchText] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [showTags, setShowTags] = useState(false)
   const [isMicrophoneActive, setIsMicrophoneActive] = useState(false)
-  const [isRecording, setIsRecording] = useState(false);
+  let [isRecording, setIsRecording] = useState(false);
+  let [results, setResults] = useState([]);
 
   const patientData = [
     { type: 'input', label: 'Nom', placeholder: 'Doe' },
-    { type: 'input', label: 'Prénom', placeholder: 'John' },
-    { type: 'input', label: 'Âge', number: true },
+    { type: 'input', label: 'Prenom', placeholder: 'John' },
+    { type: 'input', label: 'Age', number: true },
     { type: 'input', label: 'Poids', number: true },
     { type: 'radio', label: 'Sexe', values: ['Homme', 'Femme', 'Autres'] },
     { type: 'radio', label: 'Groupe sanguin', values: ['A', 'B', 'AB', 'O'] },
@@ -52,6 +79,14 @@ export default function TabTwoScreen() {
     }
   }, [paramPhotoUri]);
 
+  useEffect(() => {
+    Voice.onSpeechError = onSpeechError;
+    Voice.onSpeechResults = onSpeechResults;
+    return () => {
+      Voice.destroy().then(Voice.removeAllListeners);
+    };
+  }, []);
+
   const handleSearch = (text: string) => {
     setSearchText(text)
   }
@@ -74,11 +109,160 @@ export default function TabTwoScreen() {
     return (labelMatch || valuesMatch) && tagMatch
   })
 
+  const startSpeechToText = async () => {
+    await Voice.start('fr-FR');
+    setIsRecording(true);
+  };
+
+  const stopSpeechToText = async () => {
+    await Voice.stop();
+    setIsRecording(false);
+  }
+
+  const onSpeechResults = (result: any) => {
+    setResults(result.value);
+
+    result.value.forEach((text: string) => {
+      analyzeSpokenText(text);
+    });
+  }
+
+  const onSpeechError = (error: any) => {
+    console.log('Erreur de reconnaissance vocale:', error);
+  }
+
+  const [formValues, setFormValues] = useState<FormValues>({
+    nom: '',
+    prenom: '',
+    age: '',
+    poids: '',
+    // sexe: '',
+    // groupeSanguin: '',
+    // allergies: [] as string[],
+    // symptomes: [] as string[],
+    // antecedentsMedicaux: [] as string[],
+    // traitements: [] as string[],
+    // vaccins: [] as string[],
+    // facteursRisque: [] as string[],
+    // traitementsEnCours: [] as string[],
+    // medicaments: [] as string[],
+    // chirurgies: [] as string[],
+    // physiotherapie: [] as string[],
+    // autresTraitements: [] as string[],
+    // autresInformations: ''
+  });
+
+  const getLabelKey = (label: string): FormField => {
+    return label.toLowerCase().replace(/\s+/g, '') as FormField;
+  };
+
+  const updateFormValue = (field: FormField, value: string | string[]) => {
+    console.log('Mise à jour de la valeur:', field, value);
+    setFormValues(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    // console.log('FormValues:', formValues);
+  };
+
+  // Fonction pour analyser le texte dicté
+  const analyzeSpokenText = (text: string) => {
+    const removeAccents = (str: string) => {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
+
+    console.log("Texte dicté original:", text);
+    const normalizedText = removeAccents(text.toLowerCase());
+    console.log("Texte normalisé:", normalizedText);
+
+    const numberWords: { [key: string]: number } = {
+        'zero': 0, 'zéro': 0,
+        'un': 1, 'une': 1,
+        'deux': 2,
+        'trois': 3,
+        'quatre': 4,
+        'cinq': 5,
+        'six': 6,
+        'sept': 7,
+        'huit': 8,
+        'neuf': 9,
+        'dix': 10,
+        'trente': 30,
+        'cent': 100,
+        // Ajoutez d'autres nombres si nécessaire
+    };
+
+    const convertWordToNumber = (word: string): string => {
+        const number = numberWords[word.toLowerCase()];
+        return number !== undefined ? number.toString() : word;
+    };
+    
+    // Modification des expressions régulières pour gérer les variantes avec/sans accent
+    const fields = {
+        nom: /\bnom\s+(\w+)\b/i,
+        prenom: /\b(prénom|prenom)\s+(\w+)\b/i,
+        age: /\b(âge|age)\s+(\d+|zero|zéro|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\b/i,
+        poids: /\b(poids)\s+(\d+|zero|zéro|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\b/i,
+        sexe: /\b(homme|femme|autres)\b/i,
+        groupeSanguin: /\bgroupe\s+sanguin\s+(a|b|ab|o)\b/i,
+    };
+  
+  // Dans la fonction analyzeSpokenText
+  Object.entries(fields).forEach(([field, regex]) => {
+        // console.log(`Tentative de match pour ${field} avec regex ${regex}`);
+        const match = normalizedText.match(regex);
+        // console.log(`Résultat du match pour ${field}:`, match);
+        
+        if (match) {
+            console.log('Match trouvé:', match);
+            // Pour age et poids, convertir les nombres en lettres si nécessaire
+            if (field === 'age' || field === 'poids') {
+                const numberValue = convertWordToNumber(match[match.length - 1]);
+                setFormValues(prev => ({
+                    ...prev,
+                    [field]: numberValue
+                }));
+                console.log(`Valeur numérique pour ${field}:`, numberValue);
+            } else {
+                const value = match[match.length - 1];
+                setFormValues(prev => ({
+                    ...prev,
+                    [field]: value
+                }));
+            }
+        }
+    });
+
+    // // Analyse pour les champs à choix multiples
+    // const multiFields = {
+    //   allergies: ['pénicilline', 'aspirine', 'ibuprofène'],
+    //   symptomes: ['douleurs', 'saignements', 'maux de tête', 'fatigue'],
+    //   antecedentsMedicaux: ['diabète', 'hypertension', 'allergies'],
+    //   traitements: ['médicaments', 'chirurgie', 'physiothérapie'],
+    //   // ... ajoutez les autres champs multiples ici
+    // };
+
+    // Object.entries(multiFields).forEach(([field, keywords]) => {
+    //   const foundValues = keywords.filter(keyword => 
+    //     lowerText.includes(keyword.toLowerCase())
+    //   );
+    //   if (foundValues.length > 0) {
+    //     updateFormValue(field, foundValues);
+    //   }
+    // });
+
+    // // Pour les autres informations (texte libre)
+    // const autresInfosMatch = lowerText.match(/autres informations\s+(.+)/i);
+    // if (autresInfosMatch) {
+    //   updateFormValue('autresInformations', autresInfosMatch[1]);
+    // }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Fiche Patient</Text>
       <View style={styles.microphoneContainer}>
-        <TouchableOpacity
+        <TouchableOpacity // Cela représente uniquement l'affichage du bouton gris ou rouge du micro pour activer ou désactiver le micro
           style={[
             styles.microphoneButton,
             isMicrophoneActive ? styles.microphoneActive : styles.microphoneInactive,
@@ -98,7 +282,8 @@ export default function TabTwoScreen() {
       {isMicrophoneActive && (
         <TouchableOpacity 
           style={styles.speechToTextSection}
-          onPress={() => setIsRecording(!isRecording)}
+          onPress={isRecording ? stopSpeechToText : startSpeechToText}
+          // onPress={() => setIsRecording(!isRecording)} // L'appui sur cette section déclenche le début de l'enregistrement
         >
           <TouchableOpacity 
             style={[
@@ -106,18 +291,21 @@ export default function TabTwoScreen() {
               !isRecording && { paddingLeft: 3 },
               isRecording && { paddingLeft: 0 }
             ]}
-            onPress={() => setIsRecording(!isRecording)}
+            onPress={isRecording ? stopSpeechToText : startSpeechToText}
+            // onPress={() => setIsRecording(!isRecording)} // L'appui sur ce bouton déclenche également le début de l'enregistrement
           >
             <Ionicons name={isRecording ? "pause" : "play"} size={24} color="black" />
           </TouchableOpacity>
           <Text style={styles.speechToTextText}>
-            {isRecording ? 'Enregistrement\nen cours...' : 'Appuyez pour démarrer\nle speech to text'}
+            {results.map((result, index) => <Text key={index}>{result}</Text>)}
+            {/* {isRecording ? 'Enregistrement\nen cours...' : 'Appuyez pour démarrer\nle speech to text'} */}
           </Text>
           {isRecording && (
             <TouchableOpacity
               style={styles.controlButton}
               onPress={() => {
-                setIsRecording(false);
+                stopSpeechToText();
+                // setIsRecording(false);
                 setIsMicrophoneActive(false); // Optionnel : Désactive le microphone
               }}
             >
@@ -163,6 +351,11 @@ export default function TabTwoScreen() {
                 label={item.label}
                 placeholder={item.placeholder}
                 number={item.number}
+                value={formValues[getLabelKey(item.label)]?.toString() || ''}
+                onChange={(text) => updateFormValue(
+                  getLabelKey(item.label),
+                  text
+                )}
               />
             )
           }
