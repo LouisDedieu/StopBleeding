@@ -1,84 +1,100 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
 interface InputProps {
   label: string;
   number?: boolean;
   placeholder?: string;
-  value?: string;
-  onChange?: (text: string) => void;  // Ajout de la prop onChange
+  value: string;
+  onChange: (text: string) => void;
 }
 
 const Input: React.FC<InputProps> = ({ label, number, placeholder, value, onChange }) => {
-  // const [text, setText] = useState('')
-  // const [num, setNum] = useState(0)
-  
-  // const increment = () => {
-  //   const newValue = num + 1;
-  //   setNum(newValue);
-  //   onChange?.(newValue.toString());  // Appel de onChange si défini
-  // }
-  
-  // const decrement = () => {
-  //   const newValue = num > 0 ? num - 1 : 0;
-  //   setNum(newValue);
-  //   onChange?.(newValue.toString());  // Appel de onChange si défini
-  // }
+  const [localValue, setLocalValue] = useState(value);
+  const inputRef = useRef<TextInput>(null);
+  const [isFocused, setIsFocused] = useState(false);
+
+  // Mettre à jour la valeur locale uniquement si la valeur externe change 
+  // et que l'input n'est pas focus (pour le speech-to-text)
+  useEffect(() => {
+    if (value !== localValue && !isFocused) {
+      setLocalValue(value);
+    }
+  }, [value]);
+
+  const handleChangeText = (text: string) => {
+    setLocalValue(text);
+    // N'envoyer la mise à jour au parent que si on n'est pas focus
+    // ou si c'est un changement via les boutons +/-
+    if (!isFocused || number) {
+      onChange(text);
+    }
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    // Envoyer la valeur finale au parent lors du blur
+    onChange(localValue);
+  };
 
   if (number) {
     return (
-        <View style={styles.container}>
-            <Text style={styles.label}>{label}</Text>
-            <View style={styles.inputContainer}>
-                <TouchableOpacity 
-                    onPress={() => {
-                        const currentValue = parseInt(value || '0');
-                        const newValue = Math.max(0, currentValue - 1);
-                        onChange?.(newValue.toString());
-                    }} 
-                    style={styles.arrowButton}
-                >
-                    <Text style={styles.arrowText}>-</Text>
-                </TouchableOpacity>
-                <TextInput
-                    style={styles.inputNumber}
-                    keyboardType="numeric"
-                    onChangeText={(text) => {
-                        const newValue = parseInt(text) || 0;
-                        onChange?.(newValue.toString());
-                    }}
-                    value={value || '0'}
-                    placeholder={placeholder}
-                />
-                <TouchableOpacity 
-                    onPress={() => {
-                        const currentValue = parseInt(value || '0');
-                        onChange?.((currentValue + 1).toString());
-                    }} 
-                    style={styles.arrowButton}
-                >
-                    <Text style={styles.arrowText}>+</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-    )
-}
-
-return (
-    <View style={styles.container}>
+      <View style={styles.container}>
         <Text style={styles.label}>{label}</Text>
-        <TextInput
-            style={styles.input}
-            onChangeText={onChange}
-            value={value || ''}
+        <View style={styles.inputContainer}>
+          <TouchableOpacity
+            onPress={() => {
+              const currentValue = parseInt(localValue || '0');
+              const newValue = Math.max(0, currentValue - 1);
+              handleChangeText(newValue.toString());
+            }}
+            style={styles.arrowButton}
+          >
+            <Text style={styles.arrowText}>-</Text>
+          </TouchableOpacity>
+          <TextInput
+            ref={inputRef}
+            style={styles.inputNumber}
+            keyboardType="numeric"
+            onChangeText={handleChangeText}
+            onFocus={() => setIsFocused(true)}
+            onBlur={handleBlur}
+            value={localValue}
             placeholder={placeholder}
-            multiline
-        />
+          />
+          <TouchableOpacity
+            onPress={() => {
+              const currentValue = parseInt(localValue || '0');
+              const newValue = currentValue + 1;
+              handleChangeText(newValue.toString());
+            }}
+            style={styles.arrowButton}
+          >
+            <Text style={styles.arrowText}>+</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    )
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.label}>{label}</Text>
+      <TextInput
+        ref={inputRef}
+        style={styles.input}
+        onChangeText={handleChangeText}
+        onFocus={() => setIsFocused(true)}
+        onBlur={handleBlur}
+        value={localValue}
+        placeholder={placeholder}
+        multiline
+      />
     </View>
-)
+  )
 }
 
-export default Input
+export default Input;
 
 const styles = StyleSheet.create({
   container: {
@@ -96,14 +112,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: '100%',
   },
-    inputNumber: {
-        height: 35,
-        borderColor: 'lightgray',
-        borderWidth: 1,
-        paddingLeft: 8,
-        borderRadius: 10,
-        width: 60,
-    },
+  inputNumber: {
+    height: 35,
+    borderColor: 'lightgray',
+    borderWidth: 1,
+    paddingLeft: 8,
+    borderRadius: 10,
+    width: 60,
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',

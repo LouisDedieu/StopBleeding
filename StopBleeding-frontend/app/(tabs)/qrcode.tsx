@@ -5,6 +5,7 @@ import { Text, View } from '@/components/Themed';
 import CustomButton from "@/components/CustomButton";
 import Colors from "@/constants/Colors";
 import {useColorScheme} from "@/components/useColorScheme";
+import React from "react";
 
 export default function TabTwoScreen() {
   const colorScheme = useColorScheme();

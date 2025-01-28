@@ -1,32 +1,32 @@
-import React, { useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 interface RadioButtonProps {
   values: string[];
+  selectedValue: string;
+  onValueChange: (value: string) => void;
 }
 
-const RadioButton: React.FC<RadioButtonProps> = ({ values }) => {
-  const [selectedValue, setSelectedValue] = useState<string | null>(null)
-
+const RadioButton: React.FC<RadioButtonProps> = ({ values, selectedValue, onValueChange }) => {
   return (
-    <View style={styles.container}>
-      {values.map(value => (
-        <TouchableOpacity
-          key={value}
-          style={styles.radioContainer}
-          onPress={() => setSelectedValue(value)}
-        >
-          <View style={styles.radio}>
-            {selectedValue === value && <View style={styles.selected} />}
-          </View>
-          <Text style={styles.label}>{value}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  )
-}
+      <View style={styles.container}>
+        {values.map(value => (
+            <TouchableOpacity
+                key={value}
+                style={styles.radioContainer}
+                onPress={() => onValueChange(value)}
+            >
+              <View style={styles.radio}>
+                {selectedValue === value && <View style={styles.selected} />}
+              </View>
+              <Text style={styles.label}>{value}</Text>
+            </TouchableOpacity>
+        ))}
+      </View>
+  );
+};
 
-export default RadioButton
+export default RadioButton;
 
 const styles = StyleSheet.create({
   container: {
@@ -56,4 +56,4 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
   },
-})
+});
