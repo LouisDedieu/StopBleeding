@@ -64,3 +64,4 @@ yarn-error.*
 /dist/
 /nbdist/
 /.nb-gradle/
+*.debug.dylib
