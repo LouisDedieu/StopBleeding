@@ -1,6 +1,6 @@
 // TabTwoScreen.tsx
 import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
 import { ScrollView, Text, View } from '@/components/Themed';
 import Input from '@/components/Input';
 import CheckBox from '@/components/CheckBox';
@@ -12,6 +12,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import CustomButton from "@/components/CustomButton";
 import WatchDashboard from '@/components/WatchDashboard';
 import WatchDataHistory from '@/components/WatchDataHistory';
+import GeneratePDFButton from './generatePDF';
 
 // Interface pour définir la structure d'un élément de formulaire
 interface FormItem {
@@ -31,6 +32,14 @@ interface Section {
   items: FormItem[];
 }
 
+interface FormData {
+  nom: string;
+  prenom: string;
+  age: string;
+  groupeSanguin: string;
+  observations: string;
+}
+
 export default function TabTwoScreen() {
   // États pour gérer la recherche et le filtrage
   const [searchText, setSearchText] = useState('');
@@ -38,6 +47,49 @@ export default function TabTwoScreen() {
   const [showTags, setShowTags] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   
+  const [formData, setFormData] = useState<FormData>({
+    nom: '',
+    prenom: '',
+    age: '',
+    groupeSanguin: '',
+    observations: ''
+  });
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prevState => ({
+      ...prevState,
+      [field]: value,
+    }));
+  };
+
+  // Rendu des éléments du formulaire
+  const renderFormItems = (section: Section) => {
+    return section.items.map((item, index) => {
+      const commonProps = {
+        key: index,
+        label: item.label,
+        value: formData[item.label.toLowerCase() as keyof FormData] || '',
+        onChange: (value: string) => handleInputChange(item.label.toLowerCase(), value),
+      };
+
+      switch (item.type) {
+        case 'input':
+          return <Input {...commonProps} placeholder={item.placeholder} />;
+        case 'radio':
+          return (
+            <View key={index}>
+              <Text>{item.label}</Text>
+              <RadioButton values={item.values || []} onChange={value => handleInputChange(item.label.toLowerCase(), value)} />
+            </View>
+          );
+        case 'checkbox':
+          return <CheckBox {...commonProps} values={item.values || []} />;
+        default:
+          return null;
+      }
+    });
+  };
+
   const router = useRouter();
   const { photoUri: paramPhotoUri } = useLocalSearchParams();
 
@@ -207,7 +259,9 @@ export default function TabTwoScreen() {
               </View>
             ))}
           </View>
+
         )}
+        
       </View>
     );
   };
@@ -269,6 +323,9 @@ export default function TabTwoScreen() {
           {filteredSections.map((section, index) => (
             <SectionComponent key={index} section={section} />
           ))}
+
+          {/* Générer PDF Button */}
+          <GeneratePDFButton formData={formData} />
 
           {/* Section photo */}
           <View style={styles.photoSection}>
