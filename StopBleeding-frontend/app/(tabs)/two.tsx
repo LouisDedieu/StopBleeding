@@ -112,6 +112,16 @@ export default function TabTwoScreen() {
   const patientData: Section[] = [
     {
       type: 'section',
+      label: 'Photo de l\'intervention',
+      items: [
+        {
+          type: 'photo',
+          label: 'Photos',
+        },
+      ]
+    },
+    {
+      type: 'section',
       label: 'Identité & Urgence',
       items: [
         { type: 'input', label: 'Nom', placeholder: 'Doe', priority: 'high' },
@@ -178,16 +188,6 @@ export default function TabTwoScreen() {
         },
         { type: 'input', label: 'Médicaments administrés', multiline: true },
         { type: 'input', label: 'Observations', multiline: true },
-      ]
-    },
-    {
-      type: 'section',
-      label: 'Photo de l\'intervention',
-      items: [
-        {
-          type: 'photo',
-          label: 'Photos',
-        },
       ]
     }
   ];
@@ -701,8 +701,8 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   microphoneButton: {
-    width: 70,
-    height: 70,
+    width: 50,
+    height: 50,
     borderRadius: 35,
     justifyContent: 'center',
     alignItems: 'center',
